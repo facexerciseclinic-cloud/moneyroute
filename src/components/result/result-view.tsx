@@ -13,6 +13,21 @@ import { ButtonLink } from "@/components/ui/button";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 
 const STORAGE_KEY = `rmr_answers_${ASSESSMENT_VERSION}`;
+const ANON_ID_KEY = "rmr_anon_id";
+
+/** Stable per-browser anonymous id, so a session can be claimed later. */
+function getAnonymousSessionId(): string {
+  try {
+    let id = localStorage.getItem(ANON_ID_KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(ANON_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
 
 const SCORE_CARDS: { label: string; key: DimensionKey }[] = [
   { label: "Speed Orientation", key: "income_urgency" },
@@ -59,7 +74,10 @@ export default function ResultView() {
         const res = await fetch("/api/score", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ answers }),
+          body: JSON.stringify({
+            answers,
+            anonymousSessionId: getAnonymousSessionId(),
+          }),
         });
         if (!res.ok) throw new Error("score failed");
         const data = (await res.json()) as { snapshot: ScoreSnapshot };

@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { computeScores } from "@/lib/domain/scoring";
 import { QUESTION_BY_CODE } from "@/lib/domain/questions";
+import { persistSnapshot } from "@/lib/persistence/save-snapshot";
 
 export const runtime = "nodejs";
 
 const BodySchema = z.object({
   answers: z.record(z.string(), z.string()),
+  anonymousSessionId: z.string().min(1).max(128).optional(),
 });
 
 /**
@@ -37,5 +39,14 @@ export async function POST(request: Request) {
   }
 
   const snapshot = computeScores(clean);
-  return NextResponse.json({ snapshot });
+
+  // Persist when Supabase is configured; no-op otherwise. Never blocks the
+  // response on a persistence failure.
+  const sessionId = await persistSnapshot({
+    answers: clean,
+    snapshot,
+    anonymousSessionId: parsed.data.anonymousSessionId ?? null,
+  });
+
+  return NextResponse.json({ snapshot, sessionId });
 }
