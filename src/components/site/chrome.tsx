@@ -49,6 +49,9 @@ export function SiteFooter() {
             <Link href="/assessment" className="hover:text-paper">
               Money Scan
             </Link>
+            <Link href="/opportunities" className="hover:text-paper">
+              Opportunity Radar
+            </Link>
             <Link href="/pricing" className="hover:text-paper">
               ราคา
             </Link>

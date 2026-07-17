@@ -9,7 +9,9 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   hasEntitlement,
   INCOME_BLUEPRINT_KEY,
+  ROUTE_KIT_KEY,
 } from "@/lib/persistence/entitlements";
+import { getExperiment } from "@/lib/persistence/experiments";
 import { MONEY_TYPES, type MoneyTypeKey } from "@/lib/domain/money-types";
 import { INCOME_ROUTES, type RouteKey } from "@/lib/domain/income-routes";
 import type { RouteMatch } from "@/lib/domain/scoring";
@@ -48,9 +50,11 @@ export default async function DashboardPage() {
   let sessions: SessionRow[] = [];
   let latest: LatestSnapshot | null = null;
   let entitled = false;
+  let entitledKit = false;
 
   if (admin) {
     entitled = await hasEntitlement(user.id, INCOME_BLUEPRINT_KEY);
+    entitledKit = await hasEntitlement(user.id, ROUTE_KIT_KEY);
 
     const { data: sessionRows } = await admin
       .from("assessment_sessions")
@@ -102,6 +106,20 @@ export default async function DashboardPage() {
 
   const firstName = user.email?.split("@")[0] ?? "คุณ";
   const latestSessionId = sessions[0]?.id ?? null;
+
+  // 7-day experiment progress for the latest session (entitled users only).
+  let experimentProgress: { completed: number; total: number; status: string } | null =
+    null;
+  if (admin && entitled && latestSessionId) {
+    const exp = await getExperiment(user.id, latestSessionId);
+    if (exp) {
+      experimentProgress = {
+        completed: exp.completedDays.length,
+        total: exp.tasks.length,
+        status: exp.status,
+      };
+    }
+  }
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -210,14 +228,88 @@ export default async function DashboardPage() {
               </div>
             </Card>
 
-            {/* 7-day experiment placeholder */}
-            <Card className="mt-6 space-y-2 p-6">
-              <Eyebrow>แผนทดลอง 7 วัน</Eyebrow>
-              <p className="text-sm text-muted">
-                {entitled
-                  ? "แผนทดลอง 7 วันของคุณอยู่ในรายงานฉบับเต็ม — ระบบติดตามความคืบหน้ากำลังจะมาเร็ว ๆ นี้"
-                  : "ปลดล็อก Income Blueprint เพื่อรับแผนทดลอง 7 วันที่ออกแบบเฉพาะคุณ"}
-              </p>
+            {/* 7-day experiment */}
+            <Card className="mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex-1 space-y-1">
+                <Eyebrow>แผนทดลอง 7 วัน</Eyebrow>
+                {!entitled ? (
+                  <p className="text-sm text-muted">
+                    ปลดล็อก Income Blueprint เพื่อรับแผนทดลอง 7 วันที่ออกแบบเฉพาะคุณ
+                  </p>
+                ) : experimentProgress ? (
+                  <>
+                    <p className="text-lg font-semibold text-paper">
+                      {experimentProgress.status === "completed"
+                        ? "ทำครบ 7 วันแล้ว 🎉"
+                        : `ความคืบหน้า ${experimentProgress.completed}/${experimentProgress.total} วัน`}
+                    </p>
+                    <div className="mt-2 h-2 w-full max-w-xs overflow-hidden rounded-full bg-ink/60">
+                      <div
+                        className="h-full rounded-full bg-gold transition-all"
+                        style={{
+                          width: `${Math.round(
+                            (experimentProgress.completed /
+                              experimentProgress.total) *
+                              100,
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-sm text-muted">
+                    เริ่มลงมือทำจริงใน 7 วัน — ติดตามความคืบหน้าได้ทีละวัน
+                  </p>
+                )}
+              </div>
+              {entitled && latestSessionId && (
+                <div className="shrink-0">
+                  <ButtonLink
+                    href={`/experiment/${latestSessionId}`}
+                    variant={experimentProgress ? "gold" : "outline"}
+                  >
+                    {experimentProgress ? "ทำต่อ" : "เริ่มการทดลอง"}
+                  </ButtonLink>
+                </div>
+              )}
+            </Card>
+
+            {/* Route Kit */}
+            <Card className="mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-1">
+                <Eyebrow>Route Kit</Eyebrow>
+                <p className="text-lg font-semibold text-paper">
+                  {entitledKit
+                    ? "ชุดเครื่องมือลงมือทำของคุณ"
+                    : "ชุดเครื่องมือปฏิบัติตามเส้นทาง"}
+                </p>
+                <p className="text-sm text-muted">
+                  {entitledKit
+                    ? "เทมเพลตข้อความ เช็กลิสต์ แนวทางตั้งราคา และจังหวะรายสัปดาห์"
+                    : "เทมเพลตพร้อมใช้ + เช็กลิสต์ + แนวทางตั้งราคาเฉพาะเส้นทางของคุณ"}
+                </p>
+              </div>
+              <div className="shrink-0">
+                {entitledKit && latestSessionId ? (
+                  <ButtonLink
+                    href={`/route-kit/${latestSessionId}`}
+                    variant="gold"
+                  >
+                    เปิด Route Kit
+                  </ButtonLink>
+                ) : (
+                  <ButtonLink
+                    href={
+                      latestSessionId
+                        ? `/pricing?session=${latestSessionId}`
+                        : "/pricing"
+                    }
+                    variant="outline"
+                  >
+                    ปลดล็อก 590฿
+                  </ButtonLink>
+                )}
+              </div>
             </Card>
 
             {/* History */}

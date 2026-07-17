@@ -96,9 +96,12 @@ export async function POST(request: Request) {
   }
 
   const origin = siteOrigin(request);
-  const returnTo = parsed.data.sessionId
-    ? `/report/${parsed.data.sessionId}`
-    : "/result";
+  const returnTo =
+    parsed.data.sessionId
+      ? product.entitlement_key === "route_kit"
+        ? `/route-kit/${parsed.data.sessionId}`
+        : `/report/${parsed.data.sessionId}`
+      : "/result";
 
   try {
     const checkout = await provider.createCheckoutSession({

@@ -5,6 +5,9 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 /** Entitlement key that unlocks the full deterministic report. */
 export const INCOME_BLUEPRINT_KEY = "income_blueprint";
 
+/** Entitlement key that unlocks the route-specific implementation kit. */
+export const ROUTE_KIT_KEY = "route_kit";
+
 /**
  * Returns true when the user holds an active, unexpired entitlement.
  * Returns false when Supabase is unconfigured or on any lookup error.

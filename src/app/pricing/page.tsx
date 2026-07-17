@@ -40,15 +40,17 @@ const TIERS = [
   },
   {
     name: "Route Kit",
-    price: "790฿+",
+    price: "590฿",
+    priceNote: "ราคาช่วงเปิดตัว",
     desc: "ชุดเครื่องมือปฏิบัติตามเส้นทาง",
     features: [
-      "Template พร้อมใช้",
-      "Checklist และ Script",
-      "ตัวอย่างข้อเสนอ",
-      "แผนคอนเทนต์เริ่มต้น",
+      "เทมเพลตข้อความพร้อมใช้",
+      "เช็กลิสต์เครื่องมือ + จังหวะรายสัปดาห์",
+      "แนวทางตั้งราคา",
+      "ข้อผิดพลาดที่ต้องเลี่ยง",
     ],
-    cta: { label: "เร็ว ๆ นี้", href: "#", variant: "outline" as const },
+    checkout: "route_kit" as const,
+    cta: { label: "ปลดล็อก Route Kit", href: "/assessment", variant: "gold" as const },
     highlight: false,
   },
 ];
