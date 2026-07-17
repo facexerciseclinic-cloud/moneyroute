@@ -1,0 +1,26 @@
+name: Mirror to poicaption (triggers Vercel auto-deploy)
+
+# ทุกครั้งที่ push ขึ้น main ของ repo นี้ (ฝั่ง facexercise)
+# จะ mirror โค้ดไปยัง poicaption/moneyroute
+# แล้ว Vercel ของ poicaption (ผูกแบบ native Git integration) จะ auto-deploy เอง
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to poicaption/moneyroute
+        env:
+          MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+        run: |
+          git push --force \
+            "https://x-access-token:${MIRROR_TOKEN}@github.com/poicaption/moneyroute.git" \
+            HEAD:main
