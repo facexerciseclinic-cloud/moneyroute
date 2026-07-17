@@ -10,6 +10,7 @@ import type { DimensionKey } from "@/lib/domain/dimensions";
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
 import { ScoreBar } from "@/components/ui/score-bar";
 import { ButtonLink } from "@/components/ui/button";
+import CheckoutButton from "@/components/payments/checkout-button";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
@@ -52,7 +53,7 @@ type State =
   | { status: "loading" }
   | { status: "empty" }
   | { status: "error" }
-  | { status: "ready"; snapshot: ScoreSnapshot };
+  | { status: "ready"; snapshot: ScoreSnapshot; sessionId: string | null };
 
 export default function ResultView() {
   const [state, setState] = useState<State>({ status: "loading" });
@@ -81,8 +82,16 @@ export default function ResultView() {
           }),
         });
         if (!res.ok) throw new Error("score failed");
-        const data = (await res.json()) as { snapshot: ScoreSnapshot };
-        if (!cancelled) setState({ status: "ready", snapshot: data.snapshot });
+        const data = (await res.json()) as {
+          snapshot: ScoreSnapshot;
+          sessionId?: string | null;
+        };
+        if (!cancelled)
+          setState({
+            status: "ready",
+            snapshot: data.snapshot,
+            sessionId: data.sessionId ?? null,
+          });
       } catch {
         if (!cancelled) setState({ status: "error" });
       }
@@ -253,9 +262,16 @@ export default function ResultView() {
                 รับเส้นทางที่เหมาะ 3 อันดับ เส้นทางที่ควรหลีกเลี่ยง ข้อเสนอแรก
                 แผนทดลอง 7 วัน และ Roadmap 30 วัน ที่ประกอบจากผลของคุณโดยเฉพาะ
               </p>
-              <ButtonLink href="/pricing" variant="primary" size="lg" className="mt-6">
-                ดูแพ็กเกจ
-              </ButtonLink>
+              <div className="mx-auto mt-6 max-w-xs">
+                <CheckoutButton
+                  productSlug="income_blueprint"
+                  sessionId={state.sessionId ?? undefined}
+                  variant="primary"
+                  size="lg"
+                >
+                  ปลดล็อก 390฿
+                </CheckoutButton>
+              </div>
             </div>
           </div>
         </section>

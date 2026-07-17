@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import { Card, Eyebrow, SectionTitle } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
+import CheckoutButton from "@/components/payments/checkout-button";
 
 export const metadata: Metadata = {
   title: "ราคา — ROOTMAN MONEY ROUTE",
@@ -33,7 +34,8 @@ const TIERS = [
       "แผนทดลอง 7 วัน & Roadmap 30 วัน",
       "เกณฑ์ตัดสินไปต่อหรือหยุด",
     ],
-    cta: { label: "เร็ว ๆ นี้", href: "/assessment", variant: "primary" as const },
+    checkout: "income_blueprint" as const,
+    cta: { label: "ปลดล็อกเลย", href: "/assessment", variant: "primary" as const },
     highlight: true,
   },
   {
@@ -51,7 +53,12 @@ const TIERS = [
   },
 ];
 
-export default function PricingPage() {
+export default async function PricingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ session?: string; canceled?: string }>;
+}) {
+  const { session, canceled } = await searchParams;
   return (
     <>
       <SiteHeader />
@@ -65,6 +72,11 @@ export default function PricingPage() {
             ระบบช่วยตัดสินใจ ไม่ใช่การรับประกันรายได้
             ผลลัพธ์ขึ้นอยู่กับตลาด ทักษะ และการลงมือของคุณ
           </p>
+          {canceled && (
+            <p className="mx-auto mt-4 max-w-xl text-sm text-red-soft">
+              ยกเลิกการชำระเงินแล้ว คุณสามารถกดปลดล็อกใหม่ได้ทุกเมื่อ
+            </p>
+          )}
         </div>
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
@@ -90,13 +102,24 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <ButtonLink
-                href={t.cta.href}
-                variant={t.cta.variant}
-                className="mt-6 w-full"
-              >
-                {t.cta.label}
-              </ButtonLink>
+              {"checkout" in t && t.checkout ? (
+                <CheckoutButton
+                  productSlug={t.checkout}
+                  sessionId={session}
+                  variant={t.cta.variant}
+                  className="mt-6"
+                >
+                  {t.cta.label}
+                </CheckoutButton>
+              ) : (
+                <ButtonLink
+                  href={t.cta.href}
+                  variant={t.cta.variant}
+                  className="mt-6 w-full"
+                >
+                  {t.cta.label}
+                </ButtonLink>
+              )}
             </Card>
           ))}
         </div>

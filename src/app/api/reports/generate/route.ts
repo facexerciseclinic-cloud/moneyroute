@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  hasEntitlement,
+  INCOME_BLUEPRINT_KEY,
+} from "@/lib/persistence/entitlements";
 import { computeScores, type AnswerMap } from "@/lib/domain/scoring";
 import { buildReport, REPORT_VERSION, TEMPLATE_VERSION } from "@/lib/domain/report";
 
@@ -16,8 +20,8 @@ const BodySchema = z.object({
  * Generates (or refreshes) the deterministic full report for a session the
  * caller owns, then persists and returns it.
  *
- * Requires an authenticated Supabase session. Entitlement is currently
- * auth-gated; a payment/entitlement check (Stripe) will be added here later.
+ * Requires an authenticated Supabase session and the Income Blueprint
+ * entitlement (granted after a completed purchase).
  */
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
@@ -30,6 +34,10 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  if (!(await hasEntitlement(user.id, INCOME_BLUEPRINT_KEY))) {
+    return NextResponse.json({ error: "payment_required" }, { status: 402 });
   }
 
   let json: unknown;

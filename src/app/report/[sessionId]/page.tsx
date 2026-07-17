@@ -4,6 +4,10 @@ import { SiteFooter, SiteHeader } from "@/components/site/chrome";
 import ReportView from "@/components/report/report-view";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  hasEntitlement,
+  INCOME_BLUEPRINT_KEY,
+} from "@/lib/persistence/entitlements";
 import { computeScores, type AnswerMap } from "@/lib/domain/scoring";
 import {
   buildReport,
@@ -48,6 +52,12 @@ export default async function ReportPage({
     .maybeSingle();
 
   if (!session || session.user_id !== user.id) notFound();
+
+  // Gate the full report behind the Income Blueprint entitlement.
+  const entitled = await hasEntitlement(user.id, INCOME_BLUEPRINT_KEY);
+  if (!entitled) {
+    redirect(`/pricing?session=${encodeURIComponent(sessionId)}`);
+  }
 
   // Reuse a persisted report when it matches the current engine version.
   const { data: existing } = await admin
