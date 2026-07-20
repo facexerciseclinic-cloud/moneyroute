@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Prompt, JetBrains_Mono, Silkscreen } from "next/font/google";
 import "./globals.css";
+import MetaPixel from "@/components/analytics/meta-pixel";
 
 const prompt = Prompt({
   variable: "--font-prompt",
@@ -38,7 +39,10 @@ export default function RootLayout({
       lang="th"
       className={`${prompt.variable} ${monoBrand.variable} ${pixel.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <MetaPixel />
+        {children}
+      </body>
     </html>
   );
 }
