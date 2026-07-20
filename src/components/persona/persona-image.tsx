@@ -42,11 +42,27 @@ const SIZES = {
 
 type PersonaSize = keyof typeof SIZES;
 
+export type HaloColor = "gold" | "violet" | "cyan" | "red";
+
+/** Accent halo colour per money type, to add vibrancy across the palette. */
+export const TYPE_HALO: Record<MoneyTypeKey, HaloColor> = {
+  hunter: "red",
+  creator: "violet",
+  expert: "cyan",
+  operator: "gold",
+  merchant: "gold",
+  builder: "violet",
+};
+
 /**
  * The source PNGs include transparent padding around each character, which
  * makes neighbouring art look further apart than it is. `zoom` scales the art
  * inside its box (via a wrapper so it composes with the float animation) to
  * visually trim that padding. Defaults to a gentle 1.12.
+ *
+ * When `halo` is set, a soft glowing disc is layered behind the transparent
+ * art for a multi-layer, "sticker on glow" depth effect, and the art pops on
+ * hover of the nearest `group` ancestor.
  */
 function FloatingArt({
   src,
@@ -57,6 +73,7 @@ function FloatingArt({
   priority = false,
   float = true,
   ground = true,
+  halo = null,
 }: {
   src: string;
   alt: string;
@@ -66,13 +83,26 @@ function FloatingArt({
   priority?: boolean;
   float?: boolean;
   ground?: boolean;
+  halo?: HaloColor | null;
 }) {
   const px = SIZES[size];
   return (
     <div
-      className={cn("relative shrink-0", className)}
+      className={cn(
+        "relative shrink-0 transition-transform duration-300 ease-out group-hover:-translate-y-1.5 group-hover:scale-[1.06]",
+        className,
+      )}
       style={{ width: px, height: px }}
     >
+      {halo ? (
+        <div
+          aria-hidden
+          className={cn(
+            "persona-halo pointer-events-none absolute inset-[8%] z-0",
+            `persona-halo-${halo}`,
+          )}
+        />
+      ) : null}
       <div
         className="relative z-10 h-full w-full"
         style={{ transform: `scale(${zoom})` }}
@@ -113,6 +143,7 @@ export default function PersonaImage({
   priority = false,
   float = true,
   ground = true,
+  halo = null,
 }: {
   type: MoneyTypeKey;
   size?: PersonaSize;
@@ -121,6 +152,7 @@ export default function PersonaImage({
   priority?: boolean;
   float?: boolean;
   ground?: boolean;
+  halo?: HaloColor | null;
 }) {
   return (
     <FloatingArt
@@ -132,6 +164,7 @@ export default function PersonaImage({
       priority={priority}
       float={float}
       ground={ground}
+      halo={halo}
     />
   );
 }
@@ -150,6 +183,7 @@ export function IdentityImage({
   priority = false,
   float = true,
   ground = true,
+  halo = null,
 }: {
   slug: string;
   baseType: MoneyTypeKey;
@@ -159,6 +193,7 @@ export function IdentityImage({
   priority?: boolean;
   float?: boolean;
   ground?: boolean;
+  halo?: HaloColor | null;
 }) {
   const src =
     IDENTITY_IMAGES[slug as IdentityKey] ?? PERSONA_IMAGES[baseType];
@@ -172,6 +207,7 @@ export function IdentityImage({
       priority={priority}
       float={float}
       ground={ground}
+      halo={halo}
     />
   );
 }

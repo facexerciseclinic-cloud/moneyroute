@@ -148,6 +148,91 @@ body {
   );
 }
 
+/* ── Playful "cute" interaction kit (mcsv.me-inspired) ──────────────────── */
+
+/* Glowing halo disc layered behind transparent persona art for depth. */
+.persona-halo {
+  border-radius: 50%;
+  filter: blur(16px);
+  animation: persona-halo-pulse 4.5s ease-in-out infinite;
+}
+@keyframes persona-halo-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.88);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+.persona-halo-gold {
+  background: radial-gradient(circle, rgba(255, 197, 49, 0.5), transparent 68%);
+}
+.persona-halo-violet {
+  background: radial-gradient(circle, rgba(155, 107, 255, 0.55), transparent 68%);
+}
+.persona-halo-cyan {
+  background: radial-gradient(circle, rgba(55, 224, 224, 0.5), transparent 68%);
+}
+.persona-halo-red {
+  background: radial-gradient(circle, rgba(255, 85, 102, 0.5), transparent 68%);
+}
+
+/* Generic hover lift + micro-scale for cards and tappable tiles. */
+.rmr-hover-pop {
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s ease;
+  will-change: transform;
+}
+.rmr-hover-pop:hover {
+  transform: translateY(-6px) scale(1.015);
+}
+
+/* Springy bob variants (staggered) for floating illustrations & decorations. */
+@keyframes rmr-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-1.5deg);
+  }
+}
+.rmr-bob {
+  animation: rmr-bob 4s ease-in-out infinite;
+}
+.rmr-bob-slow {
+  animation: rmr-bob 6s ease-in-out infinite;
+}
+.rmr-bob-delay {
+  animation: rmr-bob 5s ease-in-out infinite;
+  animation-delay: -1.6s;
+}
+
+/* Gentle occasional wiggle for badges / step numbers. */
+@keyframes rmr-wiggle {
+  0%,
+  90%,
+  100% {
+    transform: rotate(0deg);
+  }
+  93% {
+    transform: rotate(-8deg);
+  }
+  96% {
+    transform: rotate(6deg);
+  }
+  98% {
+    transform: rotate(-3deg);
+  }
+}
+.rmr-wiggle {
+  animation: rmr-wiggle 3.6s ease-in-out infinite;
+}
+
 /* Pixel-styled heading emphasis. */
 .text-3d {
   text-shadow: 3px 3px 0 rgba(11, 10, 9, 0.45);
@@ -259,7 +344,12 @@ body {
   .rmr-cta-pulse,
   .rmr-shimmer-text,
   .rmr-spin,
-  .rmr-drift {
+  .rmr-drift,
+  .persona-halo,
+  .rmr-bob,
+  .rmr-bob-slow,
+  .rmr-bob-delay,
+  .rmr-wiggle {
     animation: none;
   }
 }

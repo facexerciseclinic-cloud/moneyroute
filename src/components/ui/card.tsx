@@ -13,7 +13,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "pixel-3d rounded-lg border-2 border-border bg-surface/80 backdrop-blur-sm",
+        "group rmr-hover-pop pixel-3d rounded-lg border-2 border-border bg-surface/80 backdrop-blur-sm",
         glow === "red" && "border-red/40 shadow-[3px_3px_0_0_rgba(13,9,32,0.7),6px_6px_0_0_rgba(13,9,32,0.35),0_0_40px_-16px_rgba(255,85,102,0.7)]",
         glow === "gold" && "border-gold/40 shadow-[3px_3px_0_0_rgba(13,9,32,0.7),6px_6px_0_0_rgba(13,9,32,0.35),0_0_40px_-16px_rgba(255,197,49,0.75)]",
         className,

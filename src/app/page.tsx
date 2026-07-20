@@ -6,15 +6,58 @@ import { MONEY_TYPE_LIST } from "@/lib/domain/money-types";
 import { IDENTITY_LIST } from "@/lib/domain/identities";
 import PersonaImage, {
   IdentityImage,
+  TYPE_HALO,
 } from "@/components/persona/persona-image";
 
 const HOW_IT_WORKS = [
-  { step: "01", title: "Scan", desc: "ตอบคำถามเกี่ยวกับตัวตนและทรัพยากรของคุณ" },
-  { step: "02", title: "Match", desc: "ระบบจับคู่คุณกับเส้นทางรายได้ที่เหมาะสม" },
-  { step: "03", title: "Blueprint", desc: "รับแผนสร้างรายได้เฉพาะบุคคลฉบับเต็ม" },
-  { step: "04", title: "Experiment", desc: "ทดลองตลาดก่อนเดิมพันใหญ่" },
-  { step: "05", title: "Review", desc: "วัดผลและปรับเส้นทางอย่างเป็นระบบ" },
+  {
+    step: "01",
+    title: "Scan",
+    thai: "สแกนตัวตน",
+    desc: "ตอบคำถามเกี่ยวกับตัวตนและทรัพยากรของคุณ",
+    image: "/steps/01-scan.webp",
+    halo: "cyan" as const,
+  },
+  {
+    step: "02",
+    title: "Match",
+    thai: "จับคู่เส้นทาง",
+    desc: "ระบบจับคู่คุณกับเส้นทางรายได้ที่เหมาะสม",
+    image: "/steps/02-match.webp",
+    halo: "violet" as const,
+  },
+  {
+    step: "03",
+    title: "Blueprint",
+    thai: "วางแผนแม่บท",
+    desc: "รับแผนสร้างรายได้เฉพาะบุคคลฉบับเต็ม",
+    image: "/steps/03-blueprint.webp",
+    halo: "gold" as const,
+  },
+  {
+    step: "04",
+    title: "Experiment",
+    thai: "ทดลองจริง",
+    desc: "ทดลองตลาดก่อนเดิมพันใหญ่",
+    image: "/steps/04-experiment.webp",
+    halo: "red" as const,
+  },
+  {
+    step: "05",
+    title: "Review",
+    thai: "วัดผลและปรับ",
+    desc: "วัดผลและปรับเส้นทางอย่างเป็นระบบ",
+    image: "/steps/05-review.webp",
+    halo: "cyan" as const,
+  },
 ];
+
+const STEP_HALO: Record<string, string> = {
+  gold: "bg-[radial-gradient(circle,rgba(255,197,49,0.45),transparent_68%)]",
+  violet: "bg-[radial-gradient(circle,rgba(155,107,255,0.5),transparent_68%)]",
+  cyan: "bg-[radial-gradient(circle,rgba(55,224,224,0.45),transparent_68%)]",
+  red: "bg-[radial-gradient(circle,rgba(255,85,102,0.45),transparent_68%)]",
+};
 
 const RECEIVE = [
   "อัตลักษณ์ทางการเงินของคุณ (1 ใน 16 แบบ)",
@@ -147,17 +190,50 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How it works */}
+        {/* How it works — illustrated 5 steps */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <Eyebrow>วิธีการทำงาน</Eyebrow>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {HOW_IT_WORKS.map((s) => (
-              <Card key={s.step} className="p-5">
-                <div className="font-mono text-sm text-gold">{s.step}</div>
-                <div className="mt-2 text-lg font-bold text-paper">
-                  {s.title}
+          <div className="text-center">
+            <Eyebrow>วิธีการทำงาน</Eyebrow>
+            <SectionTitle className="mt-3">
+              5 ขั้นตอน จากคำถามสู่แผนลงมือจริง
+            </SectionTitle>
+          </div>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+            {HOW_IT_WORKS.map((s, i) => (
+              <Card
+                key={s.step}
+                className="flex flex-col items-center p-5 text-center rmr-fade-up"
+                glow="gold"
+              >
+                <div
+                  className="rmr-fade-up flex flex-col items-center"
+                  style={{ animationDelay: `${i * 90}ms` }}
+                >
+                  <div className="relative flex h-32 w-32 items-center justify-center">
+                    <div
+                      aria-hidden
+                      className={`persona-halo pointer-events-none absolute inset-2 ${STEP_HALO[s.halo]}`}
+                    />
+                    <Image
+                      src={s.image}
+                      alt={`${s.title} — ${s.thai}`}
+                      width={256}
+                      height={256}
+                      className="rmr-bob relative z-10 h-28 w-28 object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out group-hover:-translate-y-1.5 group-hover:scale-110"
+                      style={{ animationDelay: `${i * 0.6}s` }}
+                    />
+                    <span className="font-pixel absolute -right-1 -top-1 z-20 flex h-8 w-8 items-center justify-center rounded-full border-2 border-ink bg-gold text-xs font-black text-ink rmr-wiggle">
+                      {s.step}
+                    </span>
+                  </div>
+                  <div className="mt-3 text-lg font-bold text-paper">
+                    {s.thai}
+                  </div>
+                  <div className="font-pixel mt-0.5 text-[10px] uppercase tracking-widest text-gold">
+                    {s.title}
+                  </div>
+                  <p className="mt-2 text-sm text-muted">{s.desc}</p>
                 </div>
-                <p className="mt-1 text-sm text-muted">{s.desc}</p>
               </Card>
             ))}
           </div>
@@ -174,7 +250,12 @@ export default function Home() {
               {MONEY_TYPE_LIST.map((t) => (
                 <Card key={t.slug} className="p-5" glow="gold">
                   <div className="flex items-start gap-4">
-                    <PersonaImage type={t.slug} size="sm" ground={false} />
+                    <PersonaImage
+                      type={t.slug}
+                      size="sm"
+                      ground={false}
+                      halo={TYPE_HALO[t.slug]}
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="text-xl font-extrabold tracking-tight text-paper">
                         {t.name}
@@ -214,6 +295,7 @@ export default function Home() {
                     size="md"
                     zoom={1.2}
                     ground={false}
+                    halo={TYPE_HALO[id.baseType]}
                   />
                   <div className="mt-3 font-pixel text-[11px] uppercase tracking-widest text-gold">
                     {id.name}
